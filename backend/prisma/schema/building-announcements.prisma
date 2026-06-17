@@ -1,0 +1,13 @@
+model BuildingAnnouncement {
+  id              String    @id @default(cuid())
+  buildingId      String
+  title           String
+  body            String
+  createdByUserId String
+  expiresAt       DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  building        Building  @relation(fields: [buildingId], references: [id])
+  createdBy       User      @relation("BuildingAnnouncementAuthor", fields: [createdByUserId], references: [id])
+}

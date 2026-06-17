@@ -1,0 +1,11 @@
+[build]
+  command = "corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm install && pnpm --filter @building-app/shared build && pnpm --filter @building-app/frontend exec vite build"
+  publish = "frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

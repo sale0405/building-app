@@ -1,0 +1,113 @@
+enum UserRole {
+  RESIDENT
+  BUSINESS_USER
+  BUILDING_ADMIN
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BUSY
+  AWAY
+  OFFLINE
+}
+
+model Building {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  floors    Floor[]
+  announcements BuildingAnnouncement[]
+}
+
+model Floor {
+  id         String   @id @default(cuid())
+  buildingId String
+  number     Int
+  label      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  building   Building @relation(fields: [buildingId], references: [id])
+  users      User[]
+  smokeBreakInvitations SmokeBreakInvitation[]
+  choreRequests ChoreRequest[]
+  foodListings FoodListing[]
+  businessHelpRequests BusinessHelpRequest[]
+
+  @@unique([buildingId, number])
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         UserRole
+  floorId      String?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  floor        Floor?    @relation(fields: [floorId], references: [id])
+  profile      UserProfile?
+  refreshTokens RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  smokeBreakInvitations SmokeBreakInvitation[] @relation("SmokeBreakCreator")
+  smokeBreakParticipants SmokeBreakParticipant[]
+  choreRequests ChoreRequest[] @relation("ChoreRequester")
+  volunteeredChores ChoreRequest[] @relation("ChoreVolunteer")
+  targetedChores ChoreRequest[] @relation("ChoreTarget")
+  choreStatusHistory ChoreStatusHistory[]
+  foodListings FoodListing[]
+  foodReservations FoodReservation[]
+  foodRatingsGiven FoodRating[] @relation("RatingBuyer")
+  foodRatingsReceived FoodRating[] @relation("RatingSeller")
+  businessHelpRequests BusinessHelpRequest[]
+  businessHelpOffers BusinessHelpOffer[]
+  conversationParticipants ConversationParticipant[]
+  messages Message[]
+  messageReadReceipts MessageReadReceipt[]
+  notifications Notification[]
+  pushSubscriptions PushSubscription[]
+  notificationPreferences NotificationPreference[]
+  adminReports AdminReport[] @relation("ReportReporter")
+  adminAuditLogs AdminAuditLog[]
+  userModerations UserModeration[] @relation("ModeratedUser")
+  moderationsIssued UserModeration[] @relation("ModerationAdmin")
+  buildingAnnouncements BuildingAnnouncement[] @relation("BuildingAnnouncementAuthor")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserProfile {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  name                 String
+  companyName          String?
+  officeNumber         String?
+  bio                  String?
+  photoUrl             String?
+  availabilityStatus   AvailabilityStatus @default(AVAILABLE)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

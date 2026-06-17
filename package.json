@@ -1,0 +1,25 @@
+{
+  "name": "building-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Modular PWA for business building tenants",
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:backend": "pnpm --filter @building-app/backend dev",
+    "dev:frontend": "pnpm --filter @building-app/frontend dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "db:generate": "pnpm --filter @building-app/backend db:generate",
+    "db:migrate": "pnpm --filter @building-app/backend db:migrate",
+    "db:seed": "pnpm --filter @building-app/backend db:seed"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "netlify": {
+    "packagePath": "frontend"
+  }
+}

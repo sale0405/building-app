@@ -1,0 +1,46 @@
+enum SmokeBreakStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum BreakType {
+  SMOKE
+  COFFEE
+}
+
+enum BreakLocationType {
+  TERRACE
+  KITCHEN
+  COFFEE_SHOP
+}
+
+model SmokeBreakInvitation {
+  id              String             @id @default(cuid())
+  creatorId       String
+  floorId         String
+  breakType       BreakType          @default(COFFEE)
+  locationType    BreakLocationType  @default(TERRACE)
+  location        String
+  durationMinutes Int
+  expiresAt       DateTime
+  status          SmokeBreakStatus   @default(ACTIVE)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  creator         User               @relation("SmokeBreakCreator", fields: [creatorId], references: [id])
+  floor           Floor              @relation(fields: [floorId], references: [id])
+  participants    SmokeBreakParticipant[]
+}
+
+model SmokeBreakParticipant {
+  id           String               @id @default(cuid())
+  invitationId String
+  userId       String
+  joinedAt     DateTime             @default(now())
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  invitation   SmokeBreakInvitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  user         User                 @relation(fields: [userId], references: [id])
+
+  @@unique([invitationId, userId])
+}

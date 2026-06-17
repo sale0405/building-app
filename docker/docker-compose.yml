@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: building
+      POSTGRES_PASSWORD: building
+      POSTGRES_DB: building_app
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U building -d building_app']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - '3001:3001'
+    environment:
+      DATABASE_URL: postgresql://building:building@postgres:5432/building_app
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-production-min32
+      JWT_REFRESH_SECRET: dev-refresh-secret-change-in-production-min32
+      CORS_ORIGIN: http://localhost:5173
+      PORT: 3001
+      STORAGE_PATH: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - '5173:5173'
+    environment:
+      VITE_API_URL: http://localhost:3001/api/v1
+      VITE_SOCKET_URL: http://localhost:3001
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  uploads_data:
