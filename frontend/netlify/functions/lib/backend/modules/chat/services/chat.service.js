@@ -1,0 +1,221 @@
+import prisma from '../../../core/database/prisma.js';
+import { userInclude, toUserProfileDto } from '../../users/dto/user.dto.js';
+import { eventBus } from '../../../core/events/event-bus.js';
+export class ChatRepository {
+    createConversation(data) {
+        return prisma.conversation.create({
+            data: {
+                type: data.type,
+                title: data.title,
+                contextType: data.contextType,
+                contextId: data.contextId,
+                participants: {
+                    create: data.participantIds.map((userId) => ({ userId })),
+                },
+            },
+            include: conversationInclude,
+        });
+    }
+    findDirectConversation(userId, otherUserId) {
+        return prisma.conversation.findFirst({
+            where: {
+                type: 'DIRECT',
+                AND: [
+                    { participants: { some: { userId } } },
+                    { participants: { some: { userId: otherUserId } } },
+                ],
+                participants: { every: { userId: { in: [userId, otherUserId] } } },
+            },
+            include: conversationInclude,
+        });
+    }
+    listChatUsers(excludeUserId) {
+        return prisma.user.findMany({
+            where: { deletedAt: null, id: { not: excludeUserId } },
+            include: userInclude,
+            orderBy: { profile: { name: 'asc' } },
+        });
+    }
+    findConversations(userId) {
+        return prisma.conversation.findMany({
+            where: { participants: { some: { userId } } },
+            include: conversationInclude,
+            orderBy: { updatedAt: 'desc' },
+        });
+    }
+    findConversation(id, userId) {
+        return prisma.conversation.findFirst({
+            where: { id, participants: { some: { userId } } },
+            include: { participants: { include: { user: { include: userInclude } } } },
+        });
+    }
+    getMessages(conversationId, page, pageSize) {
+        return prisma.message.findMany({
+            where: { conversationId, deletedAt: null },
+            include: {
+                sender: { include: userInclude },
+                attachments: true,
+                readReceipts: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+        });
+    }
+    createMessage(data) {
+        return prisma.$transaction(async (tx) => {
+            const message = await tx.message.create({
+                data: {
+                    conversationId: data.conversationId,
+                    senderId: data.senderId,
+                    content: data.content,
+                    type: data.type ?? 'TEXT',
+                    attachments: data.attachments
+                        ? { create: data.attachments }
+                        : undefined,
+                },
+                include: {
+                    sender: { include: userInclude },
+                    attachments: true,
+                    readReceipts: true,
+                },
+            });
+            await tx.conversation.update({
+                where: { id: data.conversationId },
+                data: { updatedAt: new Date() },
+            });
+            return message;
+        });
+    }
+    markRead(messageId, userId) {
+        return prisma.messageReadReceipt.upsert({
+            where: { messageId_userId: { messageId, userId } },
+            create: { messageId, userId },
+            update: { readAt: new Date() },
+        });
+    }
+    updateLastRead(conversationId, userId) {
+        return prisma.conversationParticipant.update({
+            where: { conversationId_userId: { conversationId, userId } },
+            data: { lastReadAt: new Date() },
+        });
+    }
+    getParticipantIds(conversationId) {
+        return prisma.conversationParticipant.findMany({
+            where: { conversationId },
+            select: { userId: true },
+        });
+    }
+}
+const conversationInclude = {
+    participants: { include: { user: { include: userInclude } } },
+    messages: {
+        take: 1,
+        orderBy: { createdAt: 'desc' },
+        include: { sender: { include: userInclude }, attachments: true, readReceipts: true },
+    },
+};
+function toMessageDto(m, storageUrl) {
+    return {
+        id: m.id,
+        conversationId: m.conversationId,
+        senderId: m.senderId,
+        content: m.content,
+        type: m.type,
+        sender: m.sender ? toUserProfileDto(m.sender) : undefined,
+        attachments: m.attachments?.map((a) => ({
+            id: a.id,
+            url: storageUrl(a.storageKey),
+            fileName: a.fileName,
+            mimeType: a.mimeType,
+        })),
+        readBy: m.readReceipts?.map((r) => r.userId),
+        createdAt: m.createdAt.toISOString(),
+    };
+}
+function toConversationDto(c, storageUrl) {
+    const lastMsg = c.messages[0];
+    return {
+        id: c.id,
+        type: c.type,
+        title: c.title,
+        contextType: c.contextType,
+        contextId: c.contextId,
+        participants: c.participants.map((p) => toUserProfileDto(p.user)),
+        lastMessage: lastMsg ? toMessageDto(lastMsg, storageUrl) : undefined,
+        createdAt: c.createdAt.toISOString(),
+    };
+}
+export class ChatService {
+    repo;
+    storageUrl;
+    constructor(repo, storageUrl) {
+        this.repo = repo;
+        this.storageUrl = storageUrl;
+    }
+    async listChatUsers(userId) {
+        const users = await this.repo.listChatUsers(userId);
+        return users.map((u) => toUserProfileDto(u));
+    }
+    async startDirectChat(userId, otherUserId) {
+        if (userId === otherUserId)
+            throw new Error('Cannot start a chat with yourself');
+        const existing = await this.repo.findDirectConversation(userId, otherUserId);
+        if (existing)
+            return toConversationDto(existing, this.storageUrl);
+        const conv = await this.repo.createConversation({
+            type: 'DIRECT',
+            participantIds: [userId, otherUserId],
+        });
+        return toConversationDto(conv, this.storageUrl);
+    }
+    async createConversation(userId, data) {
+        if (data.type === 'DIRECT') {
+            const otherUserId = data.participantIds[0];
+            return this.startDirectChat(userId, otherUserId);
+        }
+        const allParticipants = [...new Set([userId, ...data.participantIds])];
+        if (allParticipants.length < 3) {
+            throw new Error('Group chats need at least three participants');
+        }
+        const conv = await this.repo.createConversation({
+            ...data,
+            participantIds: allParticipants,
+            title: data.title ?? `Group (${allParticipants.length})`,
+        });
+        return toConversationDto(conv, this.storageUrl);
+    }
+    async listConversations(userId) {
+        const convs = await this.repo.findConversations(userId);
+        return convs.map((c) => toConversationDto(c, this.storageUrl));
+    }
+    async getMessages(conversationId, userId, page, pageSize) {
+        const conv = await this.repo.findConversation(conversationId, userId);
+        if (!conv)
+            throw new Error('Conversation not found');
+        const messages = await this.repo.getMessages(conversationId, page, pageSize);
+        return messages.reverse().map((m) => toMessageDto(m, this.storageUrl));
+    }
+    async sendMessage(userId, conversationId, content, type = 'TEXT', attachments) {
+        const conv = await this.repo.findConversation(conversationId, userId);
+        if (!conv)
+            throw new Error('Conversation not found');
+        const message = await this.repo.createMessage({ conversationId, senderId: userId, content, type, attachments });
+        const dto = toMessageDto(message, this.storageUrl);
+        const participants = await this.repo.getParticipantIds(conversationId);
+        const recipientIds = participants.map((p) => p.userId).filter((id) => id !== userId);
+        eventBus.emit('chat.message.sent', { message: dto, recipientIds });
+        return dto;
+    }
+    async markRead(conversationId, messageId, userId) {
+        await this.repo.markRead(messageId, userId);
+        await this.repo.updateLastRead(conversationId, userId);
+    }
+    async sendSystemMessage(conversationId, content) {
+        const participants = await this.repo.getParticipantIds(conversationId);
+        if (!participants.length)
+            return;
+        await this.sendMessage(participants[0].userId, conversationId, content, 'SYSTEM');
+    }
+}
+export { toMessageDto, toConversationDto };

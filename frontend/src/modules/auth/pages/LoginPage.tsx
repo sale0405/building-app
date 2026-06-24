@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { isApiConfigured } from '../../../config/modules.js';
 import { useAuthStore } from '../store/auth.store.js';
 import { t } from '../../../core/i18n/index.js';
 
@@ -22,7 +23,16 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="card w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6">{t('auth.signIn')}</h1>
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {import.meta.env.PROD && !isApiConfigured && (
+          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            {t('auth.apiNotConfigured')}
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">{t('common.email')}</label>

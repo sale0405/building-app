@@ -15,9 +15,16 @@ export const enabledModules: ModuleName[] = [
 export const config = {
   port: parseInt(process.env.PORT || '3001', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
-  corsOrigin: process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
-    : 'http://localhost:5173',
+  corsOrigin: process.env.NETLIFY
+    ? [
+        'https://boisterous-pithivier-1cd25b.netlify.app',
+        ...(process.env.CORS_ORIGIN
+          ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+          : []),
+      ]
+    : process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+      : 'http://localhost:5173',
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET || 'dev-access-secret-change-in-production',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-change-in-production',

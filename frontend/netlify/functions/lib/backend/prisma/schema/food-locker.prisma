@@ -1,0 +1,64 @@
+enum FoodListingStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  EXPIRED
+}
+
+model FoodListing {
+  id             String            @id @default(cuid())
+  sellerId       String
+  floorId        String
+  lockerNumber   String
+  title          String
+  quantity       Int
+  expirationDate DateTime
+  price          Decimal           @db.Decimal(10, 2)
+  status         FoodListingStatus @default(AVAILABLE)
+  deletedAt      DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  seller         User              @relation(fields: [sellerId], references: [id])
+  floor          Floor             @relation(fields: [floorId], references: [id])
+  photos         FoodListingPhoto[]
+  reservations   FoodReservation[]
+  ratings        FoodRating[]
+}
+
+model FoodListingPhoto {
+  id         String      @id @default(cuid())
+  listingId  String
+  storageKey String
+  sortOrder  Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  listing    FoodListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+model FoodReservation {
+  id         String      @id @default(cuid())
+  listingId  String
+  buyerId    String
+  reservedAt DateTime    @default(now())
+  expiresAt  DateTime
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  listing    FoodListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer      User        @relation(fields: [buyerId], references: [id])
+}
+
+model FoodRating {
+  id        String      @id @default(cuid())
+  listingId String
+  buyerId   String
+  sellerId  String
+  rating    Int
+  comment   String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  listing   FoodListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer     User        @relation("RatingBuyer", fields: [buyerId], references: [id])
+  seller    User        @relation("RatingSeller", fields: [sellerId], references: [id])
+
+  @@unique([listingId, buyerId])
+}

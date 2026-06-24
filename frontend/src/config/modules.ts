@@ -13,3 +13,6 @@ export const enabledModules: ModuleName[] = [
 ];
 
 export const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
+export const usesSameOriginApi = import.meta.env.PROD && !import.meta.env.VITE_API_URL;
+export const isApiConfigured = Boolean(import.meta.env.VITE_API_URL) || usesSameOriginApi;

@@ -6,7 +6,18 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      '@netlify/database':
+        specifier: ^1.0.0
+        version: 1.0.0
+      serverless-http:
+        specifier: ^3.2.0
+        version: 3.2.0
+    devDependencies:
+      '@netlify/functions':
+        specifier: ^2.8.2
+        version: 2.8.2
 
   backend:
     dependencies:
@@ -98,6 +109,12 @@ importers:
       '@building-app/shared':
         specifier: workspace:*
         version: link:../shared
+      '@netlify/database':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@prisma/client':
+        specifier: ^6.19.3
+        version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -107,6 +124,9 @@ importers:
       react-router-dom:
         specifier: ^7.1.1
         version: 7.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      serverless-http:
+        specifier: ^3.2.0
+        version: 3.2.0
       socket.io-client:
         specifier: ^4.8.1
         version: 4.8.3
@@ -114,6 +134,9 @@ importers:
         specifier: ^5.0.2
         version: 5.0.14(@types/react@18.3.31)(react@18.3.1)
     devDependencies:
+      '@netlify/functions':
+        specifier: ^2.8.2
+        version: 2.8.2
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.9.1
@@ -1201,6 +1224,30 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@neondatabase/serverless@1.1.0':
+    resolution: {integrity: sha512-r3ZZhRjEcfEdKIZnoB1RusNgvHuaBRqfCzV4Gi+5A9yUX0S4HTws/ASWqt13wL4y4I+0rqsWGdA2w7EQXHi3+Q==}
+    engines: {node: '>=19.0.0'}
+
+  '@netlify/database@1.0.0':
+    resolution: {integrity: sha512-k4rft5pkJEXp3Ps1HeuaK2F4a5wuFMeTlMr8PHfRVAdXjit+OsWAqcEqM9mk0lFyyh4zAWNZLXinrQhlZHpUBQ==}
+    engines: {node: '>=20.6.1'}
+
+  '@netlify/functions@2.8.2':
+    resolution: {integrity: sha512-DeoAQh8LuNPvBE4qsKlezjKj0PyXDryOFJfJKo3Z1qZLKzQ21sT314KQKPVjfvw6knqijj+IO+0kHXy/TJiqNA==}
+    engines: {node: '>=14.0.0'}
+
+  '@netlify/node-cookies@0.1.0':
+    resolution: {integrity: sha512-OAs1xG+FfLX0LoRASpqzVntVV/RpYkgpI0VrUnw2u0Q1qiZUzcPffxRK8HF3gc4GjuhG5ahOEMJ9bswBiZPq0g==}
+    engines: {node: ^14.16.0 || >=16.0.0}
+
+  '@netlify/runtime-utils@2.3.0':
+    resolution: {integrity: sha512-cW8weDvsKV7zfia2m5EcBy6KILGoPD+eYZ3qWNGnIo05DGF28goPES0xKSDkNYgAF/2rRSIhie2qcBhbGVgSRg==}
+    engines: {node: ^18.14.0 || >=20}
+
+  '@netlify/serverless-functions-api@1.26.1':
+    resolution: {integrity: sha512-q3L9i3HoNfz0SGpTIS4zTcKBbRkxzCRpd169eyiTuk3IwcPC3/85mzLHranlKo2b+HYT0gu37YxGB45aD8A3Tw==}
+    engines: {node: '>=18.0.0'}
 
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
@@ -3106,6 +3153,10 @@ packages:
     resolution: {integrity: sha512-x0RTqQel6g5SY7Lg6ZreMmsOzncHFU7nhnRWkKgWuMTu5NN0DR5oruckMqRvacAN9d5w6ARnRBXl9xhDCgfMeA==}
     engines: {node: '>= 0.8.0'}
 
+  serverless-http@3.2.0:
+    resolution: {integrity: sha512-QvSyZXljRLIGqwcJ4xsKJXwkZnAVkse1OajepxfjkBXV0BMvRS5R546Z4kCBI8IygDzkQY0foNPC/rnipaE9pQ==}
+    engines: {node: '>=12.0'}
+
   set-cookie-parser@2.7.2:
     resolution: {integrity: sha512-oeM1lpU/UvhTxw+g3cIfxXHyJRc/uidd3yK1P242gzHds0udQBYzs3y8j4gCCW+ZJ7ad0yctld8RYO+bdurlvw==}
 
@@ -3425,6 +3476,9 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
+  urlpattern-polyfill@8.0.2:
+    resolution: {integrity: sha512-Qp95D4TPJl1kC9SKigDcqgyM2VDVO4RiJc2d4qe5GrYm+zbIQCWWKAFaJNQ4BhdFeDGwBmAxqJBwWSJDb9T3BQ==}
+
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -3556,6 +3610,71 @@ packages:
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
+
+  waddler@0.1.1:
+    resolution: {integrity: sha512-lBJXYFBLEpYe+scAeCJmLj6Iqweuq1whM6Am3I9WfopOCFxvKz8Nq5hXoy8/b3zwJqHIQMglFIvM4skRydSpZg==}
+    peerDependencies:
+      '@clickhouse/client': ^1.11.2
+      '@cloudflare/workers-types': '*'
+      '@duckdb/node-api': ^1.1.2-alpha.4
+      '@electric-sql/pglite': ^0.2.17
+      '@libsql/client': ^0.15.4
+      '@libsql/client-wasm': ^0.15.4
+      '@neondatabase/serverless': ^1.0.0
+      '@op-engineering/op-sqlite': '*'
+      '@planetscale/database': ^1.19.0
+      '@tidbcloud/serverless': ^0.2.0
+      '@vercel/postgres': ^0.10.0
+      '@xata.io/client': ^0.30.1
+      better-sqlite3: ^11.9.1
+      bun-types: '*'
+      duckdb: ^1.2.1
+      gel: ^2.0.2
+      mysql2: ^3.14.0
+      pg: ^8.14.0
+      pg-query-stream: ^4.8.0
+      postgres: ^3.4.5
+    peerDependenciesMeta:
+      '@clickhouse/client':
+        optional: true
+      '@cloudflare/workers-types':
+        optional: true
+      '@duckdb/node-api':
+        optional: true
+      '@electric-sql/pglite':
+        optional: true
+      '@libsql/client':
+        optional: true
+      '@libsql/client-wasm':
+        optional: true
+      '@neondatabase/serverless':
+        optional: true
+      '@op-engineering/op-sqlite':
+        optional: true
+      '@planetscale/database':
+        optional: true
+      '@tidbcloud/serverless':
+        optional: true
+      '@vercel/postgres':
+        optional: true
+      '@xata.io/client':
+        optional: true
+      better-sqlite3:
+        optional: true
+      bun-types:
+        optional: true
+      duckdb:
+        optional: true
+      gel:
+        optional: true
+      mysql2:
+        optional: true
+      pg:
+        optional: true
+      pg-query-stream:
+        optional: true
+      postgres:
+        optional: true
 
   web-push@3.6.7:
     resolution: {integrity: sha512-OpiIUe8cuGjrj3mMBFWY+e4MMIkW3SVT+7vEIjvD9kejGUypv8GPDf84JdPWskK8zMRIJ6xYGm+Kxr8YkPyA0A==}
@@ -4677,6 +4796,51 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@neondatabase/serverless@1.1.0': {}
+
+  '@netlify/database@1.0.0':
+    dependencies:
+      '@neondatabase/serverless': 1.1.0
+      '@netlify/runtime-utils': 2.3.0
+      pg: 8.21.0
+      waddler: 0.1.1(@neondatabase/serverless@1.1.0)(pg@8.21.0)
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - '@clickhouse/client'
+      - '@cloudflare/workers-types'
+      - '@duckdb/node-api'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@libsql/client-wasm'
+      - '@op-engineering/op-sqlite'
+      - '@planetscale/database'
+      - '@tidbcloud/serverless'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bufferutil
+      - bun-types
+      - duckdb
+      - gel
+      - mysql2
+      - pg-native
+      - pg-query-stream
+      - postgres
+      - utf-8-validate
+
+  '@netlify/functions@2.8.2':
+    dependencies:
+      '@netlify/serverless-functions-api': 1.26.1
+
+  '@netlify/node-cookies@0.1.0': {}
+
+  '@netlify/runtime-utils@2.3.0': {}
+
+  '@netlify/serverless-functions-api@1.26.1':
+    dependencies:
+      '@netlify/node-cookies': 0.1.0
+      urlpattern-polyfill: 8.0.2
 
   '@noble/hashes@1.8.0': {}
 
@@ -6748,6 +6912,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  serverless-http@3.2.0: {}
+
   set-cookie-parser@2.7.2: {}
 
   set-function-length@1.2.2:
@@ -7156,6 +7322,8 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
+  urlpattern-polyfill@8.0.2: {}
+
   util-deprecate@1.0.2: {}
 
   utils-merge@1.0.1: {}
@@ -7257,6 +7425,11 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
+
+  waddler@0.1.1(@neondatabase/serverless@1.1.0)(pg@8.21.0):
+    optionalDependencies:
+      '@neondatabase/serverless': 1.1.0
+      pg: 8.21.0
 
   web-push@3.6.7:
     dependencies:

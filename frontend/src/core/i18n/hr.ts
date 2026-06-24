@@ -56,8 +56,8 @@ export const hr = {
     loginFailed: 'Prijava nije uspjela',
     registerFailed: 'Registracija nije uspjela',
     networkError: 'Nema veze s poslužiteljem. Provjerite internetsku vezu.',
-    serverUnavailable:
-      'Backend nije dostupan. Aplikacija na Netlifyu treba postavljen API (VITE_API_URL).',
+    serverUnavailable: 'Backend trenutno nije dostupan. Pokušajte ponovno za nekoliko sekundi.',
+    apiNotConfigured: 'API se pokreće. Ako se problem ponovi, osvježite stranicu.',
   },
   profile: {
     createTitle: 'Stvorite svoj profil',

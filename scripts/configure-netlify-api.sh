@@ -12,6 +12,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR/frontend"
 npx netlify env:set VITE_API_URL "${BACKEND_URL}/api/v1" --context production
 npx netlify env:set VITE_SOCKET_URL "${BACKEND_URL}" --context production
-npx netlify deploy --prod --dir=dist
+SKIP_PWA=1 bash ../scripts/netlify-frontend-build.sh
+npx netlify deploy --prod
 
 echo "Netlify production updated to use ${BACKEND_URL}"

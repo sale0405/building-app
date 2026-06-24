@@ -12,13 +12,17 @@
   },
   "dependencies": {
     "@building-app/shared": "workspace:*",
+    "@netlify/database": "^1.0.0",
+    "@prisma/client": "^6.19.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.1",
+    "serverless-http": "^3.2.0",
     "socket.io-client": "^4.8.1",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@netlify/functions": "^2.8.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@types/react": "^18.3.18",

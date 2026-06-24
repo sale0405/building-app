@@ -3,6 +3,17 @@ import { API_BASE } from '../config/modules.js';
 
 type RequestOptions = RequestInit & { skipAuth?: boolean };
 
+const REQUEST_TIMEOUT_MS = 15000;
+
+function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => {
+    clearTimeout(timeoutId);
+  });
+}
+
 class ApiClient {
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
@@ -37,7 +48,7 @@ class ApiClient {
 
     this.refreshPromise = (async () => {
       try {
-        const res = await fetch(`${API_BASE}/auth/refresh`, {
+        const res = await fetchWithTimeout(`${API_BASE}/auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refreshToken: this.refreshToken }),
@@ -89,13 +100,13 @@ class ApiClient {
     }
 
     try {
-      let res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+      let res = await fetchWithTimeout(`${API_BASE}${path}`, { ...options, headers });
 
       if (res.status === 401 && !options.skipAuth && this.refreshToken) {
         const refreshed = await this.refreshAccessToken();
         if (refreshed && this.accessToken) {
           headers['Authorization'] = `Bearer ${this.accessToken}`;
-          res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+          res = await fetchWithTimeout(`${API_BASE}${path}`, { ...options, headers });
         }
       }
 

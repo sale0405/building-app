@@ -1,13 +1,23 @@
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_URL } from '../config/modules.js';
 import { apiClient } from './api-client.js';
 
 let socket: Socket | null = null;
 
-export function connectSocket(): Socket {
+function resolveSocketUrl(): string | null {
+  if (SOCKET_URL) return SOCKET_URL;
+  if (import.meta.env.DEV) return 'http://localhost:3001';
+  return null;
+}
+
+export function connectSocket(): Socket | null {
+  const url = resolveSocketUrl();
+  if (!url) return null;
+
   if (socket?.connected) return socket;
 
   const token = apiClient.getAccessToken();
-  socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001', {
+  socket = io(url, {
     auth: { token },
     autoConnect: true,
   });

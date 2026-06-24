@@ -1,0 +1,61 @@
+enum BusinessHelpStatus {
+  OPEN
+  MATCHED
+  COMPLETED
+  CLOSED
+}
+
+model BusinessHelpRequest {
+  id          String             @id @default(cuid())
+  requesterId String
+  floorId     String?
+  category    String
+  title       String
+  description String
+  status      BusinessHelpStatus @default(OPEN)
+  deletedAt   DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  requester   User               @relation(fields: [requesterId], references: [id])
+  floor       Floor?             @relation(fields: [floorId], references: [id])
+  offers      BusinessHelpOffer[]
+  matches     BusinessHelpMatch[]
+}
+
+model BusinessHelpOffer {
+  id          String              @id @default(cuid())
+  offererId   String
+  requestId   String?
+  category    String
+  title       String
+  description String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  offerer     User                @relation(fields: [offererId], references: [id])
+  request     BusinessHelpRequest? @relation(fields: [requestId], references: [id])
+  matches     BusinessHelpMatch[]
+}
+
+model BusinessHelpMatch {
+  id          String              @id @default(cuid())
+  requestId   String
+  offerId     String
+  scheduledAt DateTime?
+  status      BusinessHelpStatus  @default(MATCHED)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  request     BusinessHelpRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  offer       BusinessHelpOffer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  meetings    BusinessHelpMeeting[]
+}
+
+model BusinessHelpMeeting {
+  id          String            @id @default(cuid())
+  matchId     String
+  scheduledAt DateTime
+  location    String
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  match       BusinessHelpMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+}

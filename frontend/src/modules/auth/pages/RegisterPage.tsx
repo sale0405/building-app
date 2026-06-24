@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserRole } from '@building-app/shared';
+import { isApiConfigured } from '../../../config/modules.js';
 import { useAuthStore } from '../store/auth.store.js';
 import { t } from '../../../core/i18n/index.js';
 
@@ -27,7 +28,16 @@ export function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="card w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6">{t('auth.register')}</h1>
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {import.meta.env.PROD && !isApiConfigured && (
+          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            {t('auth.apiNotConfigured')}
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input className="input" placeholder={t('common.name')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           <input className="input" type="email" placeholder={t('common.email')} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />

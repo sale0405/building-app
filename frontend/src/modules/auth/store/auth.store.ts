@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { UserProfileDto, TokenPair } from '@building-app/shared';
+import { isApiConfigured } from '../../../config/modules.js';
 import { apiClient } from '../../../core/api-client.js';
 import { connectSocket, disconnectSocket } from '../../../core/socket-client.js';
 import { t } from '../../../core/i18n/index.js';
@@ -7,7 +8,11 @@ import { t } from '../../../core/i18n/index.js';
 function mapAuthError(error: string | undefined, fallback: string): string {
   if (!error) return fallback;
   if (error === 'Network error') return t('auth.networkError');
-  if (error === 'Server unavailable' || error === 'Invalid server response') {
+  if (
+    error === 'Server unavailable' ||
+    error === 'Invalid server response' ||
+    error === 'Unexpected server response'
+  ) {
     return t('auth.serverUnavailable');
   }
   return error;
@@ -43,7 +48,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await apiClient.refreshAccessToken();
       }
       await get().loadUser();
-      if (get().isAuthenticated) {
+      if (get().isAuthenticated && isApiConfigured) {
         connectSocket();
       }
     }
@@ -65,7 +70,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       apiClient.setTokens(res.data.tokens.accessToken, res.data.tokens.refreshToken);
       set({ user: res.data.user, isAuthenticated: true });
-      connectSocket();
+      if (isApiConfigured) connectSocket();
       return true;
     } finally {
       set({ isLoading: false });
@@ -86,7 +91,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       apiClient.setTokens(res.data.tokens.accessToken, res.data.tokens.refreshToken);
       set({ user: res.data.user, isAuthenticated: true });
-      connectSocket();
+      if (isApiConfigured) connectSocket();
       return true;
     } finally {
       set({ isLoading: false });

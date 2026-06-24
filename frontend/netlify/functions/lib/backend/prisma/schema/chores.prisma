@@ -1,0 +1,57 @@
+enum ChoreStatus {
+  OPEN
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum UrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum CoopAudienceType {
+  OPEN
+  MY_COMPANY
+  OTHER_COMPANY
+  SPECIFIC_USER
+}
+
+model ChoreRequest {
+  id                String           @id @default(cuid())
+  requesterId       String
+  floorId           String
+  title             String
+  description       String
+  helpType          String
+  estimatedDuration Int
+  preferredTime     DateTime?
+  urgency           UrgencyLevel
+  audienceType      CoopAudienceType @default(OPEN)
+  targetCompanyName String?
+  targetUserId      String?
+  status            ChoreStatus      @default(OPEN)
+  volunteerId       String?
+  deletedAt         DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  requester         User             @relation("ChoreRequester", fields: [requesterId], references: [id])
+  volunteer         User?            @relation("ChoreVolunteer", fields: [volunteerId], references: [id])
+  targetUser        User?            @relation("ChoreTarget", fields: [targetUserId], references: [id])
+  floor             Floor            @relation(fields: [floorId], references: [id])
+  statusHistory     ChoreStatusHistory[]
+}
+
+model ChoreStatusHistory {
+  id          String      @id @default(cuid())
+  choreId     String
+  status      ChoreStatus
+  changedById String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  chore       ChoreRequest @relation(fields: [choreId], references: [id], onDelete: Cascade)
+  changedBy   User        @relation(fields: [changedById], references: [id])
+}

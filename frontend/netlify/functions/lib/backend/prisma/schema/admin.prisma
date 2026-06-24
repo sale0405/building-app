@@ -1,0 +1,41 @@
+enum ModerationAction {
+  DISABLED
+  WARNED
+}
+
+model AdminReport {
+  id         String   @id @default(cuid())
+  reporterId String
+  targetType String
+  targetId   String
+  reason     String
+  status     String   @default("OPEN")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  reporter   User     @relation("ReportReporter", fields: [reporterId], references: [id])
+}
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  admin      User     @relation(fields: [adminId], references: [id])
+}
+
+model UserModeration {
+  id        String           @id @default(cuid())
+  userId    String
+  action    ModerationAction
+  reason    String
+  adminId   String
+  expiresAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  user      User             @relation("ModeratedUser", fields: [userId], references: [id])
+  admin     User             @relation("ModerationAdmin", fields: [adminId], references: [id])
+}

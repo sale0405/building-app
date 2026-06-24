@@ -1,0 +1,20 @@
+{
+  "name": "building-app-api",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@building-app/shared": "file:../../../shared",
+    "@netlify/database": "^1.0.0",
+    "@prisma/client": "6.19.3",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "serverless-http": "^3.2.0",
+    "uuid": "^11.0.3",
+    "zod": "^3.24.1"
+  }
+}
